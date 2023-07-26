@@ -51,7 +51,7 @@ const App = () => {
         <button type="submit">Search</button>
       </form>
       <div className='Scrapping'>
-        <p>Note: Please Wait a couple of seconds to complete the Scrapping</p>
+        <p>Note: Please Wait a couple of minute to complete the Scrapping</p>
         <p>Possible failure of scraping</p>
         <p>1. Youtube website</p>
         <p>2. Instagram website</p>
