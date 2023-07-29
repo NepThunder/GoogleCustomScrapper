@@ -19,7 +19,8 @@ const App = () => {
 
   const fetchUrls = () => {
     axios
-      .get(`http://localhost:5000/search?q=${query}`)
+      // .get(`http://localhost:5000/search?q=${query}`)
+      .get(`https://scrapper-amog.onrender.com/search?q=${query}`)
       .then((response) => {
         // setSearchResults(response.data);
         scrapeData(response.data);
@@ -33,7 +34,8 @@ const App = () => {
   const scrapeData = (urls) => {
     const encodedUrls = urls.map((url) => encodeURIComponent(url));
     axios
-      .get(`http://localhost:5000/scrape?urls=${encodedUrls.join(',')}`)
+      // .get(`http://localhost:5000/scrape?urls=${encodedUrls.join(',')}`)
+      .get(`https://scrapper-amog.onrender.com/scrape?urls=${encodedUrls.join(',')}`)
       .then((response) => {
         setScrapedData(response.data);
         alert("Scraping Successful");
