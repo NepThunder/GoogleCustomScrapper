@@ -43,7 +43,7 @@ app.get('/scrape', async (req, res) => {
     }
     const scrapingBeeClient = new scrapingbee.ScrapingBeeClient(SCRAPINGBEE_API_KEY);
 
-    const scrapePromises = urls.map((url) => scrapingBeeClient.get({ url }, { filter: { text: 'body' } }));
+    const scrapePromises = urls.map((url) => scrapingBeeClient.get({ url }, params={ 'extract_rules': { text: 'body' } }));
 
     const scrapedResponses = await Promise.all(scrapePromises);
 
