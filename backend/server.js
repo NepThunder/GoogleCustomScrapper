@@ -1,10 +1,7 @@
-
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const app = express();
-const scrapingbee = require('scrapingbee');
-const cheerio = require('cheerio');
 require('dotenv').config();
 
 app.use(cors());
@@ -36,46 +33,32 @@ app.get('/search', async (req, res) => {
 
 app.get('/scrape', async (req, res) => {
   const urls = req.query.urls.split(',');
+  async function fetchDataForUrl(url) {
+    try {
+      const response = await axios.get('https://app.scrapingbee.com/api/v1', {
+        params: {
+          'api_key': SCRAPINGBEE_API_KEY,
+          'url': url,
+          'extract_rules': '{"text":"body"}',
+        },
+      });
+
+      return { url: url, text: response.data.text };
+    } catch (error) {
+      console.log(`Error fetching data for URL: ${url}`, error.message);
+      return { url: url, text: error.message };
+    }
+  }
 
   try {
-    if (!urls.length) {
-      throw new Error('No URLs provided.');
-    }
-    const scrapingBeeClient = new scrapingbee.ScrapingBeeClient(SCRAPINGBEE_API_KEY);
-
-    const scrapePromises = urls.map((url) => scrapingBeeClient.get({ url }));
-
-    const scrapedResponses = await Promise.all(scrapePromises);
-
-    console.log(scrapedResponses);
-
-    const scrapedData = scrapedResponses.map((response) => {
-      const contentType = response.headers['content-type'];
-      if (!contentType || !contentType.includes('text/html')) {
-        throw new Error('Invalid response content-type');
-      }
-      const responseData = response.data.toString();
-      const cleanedData = responseData.replace(/<iframe\b[^>]*>(.*?)<\/iframe>/gi, '');
-      const $ = cheerio.load(cleanedData);
-      $('script, style').remove();
-      const bodyText = $('body').text();
-      const words = bodyText.trim().split(/\s+/).slice(0, 50);
-      const shortenedText = words.join(' ');
-    
-      return {
-        url: response.headers['spb-resolved-url'],
-        text:shortenedText,
-      };
-    });
-
-    res.json(scrapedData);
+    const results = await Promise.all(urls.map(fetchDataForUrl));
+    res.status(200).json(results);
   } catch (error) {
-    console.error('Error scraping URLs:', error.message);
-    res.status(500).json({ error: 'Error scraping URLs' });
+    console.log("Error:", error);
+    res.status(500).json({ error: "An error occurred while scraping the URLs" });
   }
 });
 
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(5000, () => {
+  console.log(`Server is running on http://localhost:5000`);
 });
